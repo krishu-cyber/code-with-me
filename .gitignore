@@ -1,0 +1,6 @@
+# Ignore large or sensitive files for Pages
+server/node_modules/
+server/.env
+server/server.log
+.env
+node_modules/
