@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: code-with-me-server
+    env: node
+    plan: free
+    branch: main
+    buildCommand: "cd server && npm install"
+    startCommand: "cd server && npm start"
+    autoDeploy: true
