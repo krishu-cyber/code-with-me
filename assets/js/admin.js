@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const API_BASE = 'https://code-with-me-4cxn.onrender.com';
   const params = new URLSearchParams(window.location.search);
   const isAdmin = params.get('admin') === '1';
   const adminSection = document.getElementById('owner-admin');
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function apiLogin(username, password) {
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch(API_BASE + '/api/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         form.append('title', title);
         form.append('desc', desc);
         try {
-          const res = await fetch('/api/upload-project', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: form });
+          const res = await fetch(API_BASE + '/api/upload-project', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: form });
           if (!res.ok) throw new Error('Upload failed');
           const j = await res.json();
           createProjectCard(j.title, j.desc, j.downloadUrl);
@@ -142,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (token) {
         try {
-          const res = await fetch('/api/add-video', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ title, url }) });
+          const res = await fetch(API_BASE + '/api/add-video', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ title, url }) });
           if (!res.ok) throw new Error('Add video failed');
           const j = await res.json(); createVideoCard(j.title, j.url); adminVideoUrl.value = ''; adminVideoTitle.value = ''; alert('Video added'); return;
         } catch (e) { console.error(e); alert('Backend failed, using client simulation'); }
@@ -157,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function tryBackendPing() {
     try {
-      const r = await fetch('/api/ping');
+      const r = await fetch(API_BASE + '/api/ping');
       if (r.ok) { setStatus('Backend available (not logged in)', false); return true; }
     } catch (e) {}
     setStatus('No backend detected — client-only mode', false);
@@ -179,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Admin dashboard helpers
   async function listProjects() {
     try {
-      const res = await fetch('/api/projects');
+      const res = await fetch(API_BASE + '/api/projects');
       if (!res.ok) return [];
       return await res.json();
     } catch (e) { return []; }
@@ -187,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function listVideos() {
     try {
-      const res = await fetch('/api/videos');
+      const res = await fetch(API_BASE + '/api/videos');
       if (!res.ok) return [];
       return await res.json();
     } catch (e) { return []; }
@@ -196,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function deleteProject(name) {
     try {
       const tok = token || localStorage.getItem('ownerToken');
-      const res = await fetch('/api/delete-project', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok }, body: JSON.stringify({ name }) });
+      const res = await fetch(API_BASE + '/api/delete-project', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok }, body: JSON.stringify({ name }) });
       return res.ok;
     } catch (e) { return false; }
   }
@@ -204,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function deleteVideo(id) {
     try {
       const tok = token || localStorage.getItem('ownerToken');
-      const res = await fetch('/api/delete-video', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok }, body: JSON.stringify({ id }) });
+      const res = await fetch(API_BASE + '/api/delete-video', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok }, body: JSON.stringify({ id }) });
       return res.ok;
     } catch (e) { return false; }
   }
