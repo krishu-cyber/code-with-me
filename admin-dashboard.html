@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard — CodeWithMe</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Owner Admin Dashboard</h1>
+    <p id="adminStatus">Use your owner password to login (server must be running).</p>
+
+    <section style="margin-bottom:16px">
+      <label>Username: <input id="adminUsername" type="text" placeholder="owner" value="owner" /></label>
+      <label style="margin-left:12px">Password: <input id="adminPassword" type="password" placeholder="owner password" /></label>
+      <button id="adminLoginBtn" class="btn">Login</button>
+      <button id="adminRefreshBtn" class="btn">Refresh Lists</button>
+    </section>
+
+    <section>
+      <h2>Uploaded Projects</h2>
+      <div id="adminProjectsList"></div>
+    </section>
+
+    <section>
+      <h2>Videos</h2>
+      <div id="adminVideosList"></div>
+    </section>
+
+    <p style="margin-top:24px;font-size:0.9rem;color:#666">This page uses the local backend API at <code>/api</code>. Admin features require a valid owner token.</p>
+  </main>
+
+  <script src="assets/js/admin.js"></script>
+  <script>
+    // wire up refresh button and auto-load
+    const refreshBtn = document.getElementById('adminRefreshBtn');
+    refreshBtn.addEventListener('click', () => {
+      if (window.adminAPI && window.adminAPI.loadAdminDashboard) window.adminAPI.loadAdminDashboard();
+    });
+
+    // auto-refresh helper
+    let __adminAutoRefreshId = null;
+    function startAutoRefresh() {
+      if (__adminAutoRefreshId) return;
+      __adminAutoRefreshId = setInterval(() => {
+        if (window.adminAPI && window.adminAPI.loadAdminDashboard) window.adminAPI.loadAdminDashboard();
+      }, 15000);
+    }
+    function stopAutoRefresh() { if (__adminAutoRefreshId) { clearInterval(__adminAutoRefreshId); __adminAutoRefreshId = null; } }
+
+    document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+      const pw = (document.getElementById('adminPassword').value || '').trim();
+      const un = (document.getElementById('adminUsername').value || '').trim();
+      if (!un || !pw) return alert('Enter owner username and password');
+      const ok = await window.adminAPI.apiLogin(un, pw);
+      if (ok) {
+        alert('Logged in');
+        if (window.adminAPI && window.adminAPI.loadAdminDashboard) window.adminAPI.loadAdminDashboard();
+        startAutoRefresh();
+      }
+    });
+
+    // try to load on open; if cached owner token exists, load and start auto-refresh
+    window.addEventListener('DOMContentLoaded', () => {
+      const cached = localStorage.getItem('ownerToken');
+      if (cached && window.adminAPI && window.adminAPI.loadAdminDashboard) {
+        window.adminAPI.loadAdminDashboard();
+        startAutoRefresh();
+      } else if (window.adminAPI && window.adminAPI.loadAdminDashboard) {
+        window.adminAPI.loadAdminDashboard();
+      }
+    });
+  </script>
+</body>
+</html>
